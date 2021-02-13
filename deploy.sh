@@ -56,6 +56,8 @@ check_for_software zsh
 echo
 check_for_software vim
 echo
+check_for_software xclip
+echo
 check_for_software tmux
 echo
 
