@@ -12,6 +12,7 @@ source ~/GIT/dotfiles/zsh/plugins/fixls.sh
 
 # Aliases
 alias ofm='gio open .'
+alias git='LANG=en_US.UTF-8 git'
 
 # Custom cd: cd + ls
 chpwd() ls
