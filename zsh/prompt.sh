@@ -4,6 +4,10 @@ autoload -U colors && colors
 
 setopt PROMPT_SUBST
 
+function virtualenv_info {
+    [ $VIRTUAL_ENV ] && echo "(`basename \"$VIRTUAL_ENV\"`)"
+}
+
 set_prompt() {
     
 	# Status Code
@@ -13,6 +17,7 @@ set_prompt() {
 	    PS1='%{$fg[red]%}✘ %{$reset_color%}'
     fi
 
+    PS1+="$(virtualenv_info)"
 	# [
 	PS1+="%{$fg[white]%}[%{$reset_color%}"
 
