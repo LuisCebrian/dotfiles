@@ -51,10 +51,8 @@ else
 fi
 
 git submodule update --init --recursive
-echo "1. Check to make sure you have zsh, vim, and tmux installed"
+echo "1. Check to make sure you have zsh and tmux installed"
 check_for_software zsh
-echo
-check_for_software vim
 echo
 check_for_software xclip
 echo
@@ -73,14 +71,12 @@ stty $old_stty_cfg
 if echo "$answer" | grep -iq "^y" ;then
 	mv ~/.zshrc ~/.zshrc.old
 	mv ~/.tmux.conf ~/.tmux.conf.old
-	mv ~/.vimrc ~/.vimrc.old
 else
 	echo -e "\nNot backing up old dotfiles."
 fi
 
 printf "source '$HOME/GIT/dotfiles/zsh/zshrc.sh'" > ~/.zshrc
 printf "source '$HOME/GIT/dotfiles/tmux/tmux.conf'" > ~/.tmux.conf
-printf "so $HOME/GIT/dotfiles/vim/vimrc.vim" > ~/.vimrc
 
 echo
 echo "Please log out and log back in for default shell to be initialized."
