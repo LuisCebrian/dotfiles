@@ -23,7 +23,7 @@ zinit light Aloxaf/fzf-tab
 autoload -U compinit && compinit
 
 # Configure prompt
-eval "$(oh-my-posh init zsh --config tokyonight_storm)"
+eval "$(oh-my-posh init zsh --config ~/GIT/dotfiles/zsh/tokyonight_storm.omp.json)"
 
 # Keybindings
 bindkey -e
