@@ -1,5 +1,6 @@
 # Add local bin directory to path
 export PATH=$PATH:/home/luis/.local/bin
+export EDITOR=nvim
 
 # Set the directory we want to store zinit and plugins
 ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
@@ -26,9 +27,10 @@ autoload -U compinit && compinit
 eval "$(oh-my-posh init zsh --config ~/GIT/dotfiles/zsh/tokyonight_storm.omp.json)"
 
 # Keybindings
-bindkey -e
+bindkey -v
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
+bindkey '^f' autosuggest-accept
 
 # History
 HISTSIZE=5000
@@ -41,6 +43,19 @@ setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
+
+# Yank to the system clipboard
+function vi-yank-system {
+    zle vi-yank
+   echo "$CUTBUFFER" | pbcopy -i
+}
+
+zle -N vi-yank-system
+bindkey -M vicmd 'y' vi-yank-system
+
+# Allow with C-x to edit the current command in a vim buffer
+autoload -Uz edit-command-line
+zle -N edit-command-line edit-command-line
 
 # Completion styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
