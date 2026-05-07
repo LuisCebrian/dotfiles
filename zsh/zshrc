@@ -1,5 +1,5 @@
 # Add local bin directory to path
-export PATH=$PATH:/home/luis/.local/bin
+export PATH=$PATH:~/.local/bin
 export EDITOR=nvim
 
 # Set the directory we want to store zinit and plugins
@@ -31,6 +31,8 @@ bindkey -v
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
 bindkey '^f' autosuggest-accept
+# Fix backward key after entering insert mode after normal mode
+bindkey '^?' backward-delete-char
 
 # History
 HISTSIZE=5000
@@ -56,6 +58,7 @@ bindkey -M vicmd 'y' vi-yank-system
 # Allow with C-x to edit the current command in a vim buffer
 autoload -Uz edit-command-line
 zle -N edit-command-line edit-command-line
+bindkey '^x' edit-command-line
 
 # Completion styling
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
@@ -70,6 +73,37 @@ alias ls='ls --color'
 # https://github.com/junegunn/fzf?tab=readme-ov-file#using-git
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# fzf — Tokyo Night theme + layout
+export FZF_DEFAULT_OPTS="
+  --layout=reverse
+  --border=rounded
+  --height=40%
+  --margin=1,15%
+  --info=inline-right
+  --prompt='❯ '
+  --pointer='▶'
+  --marker='✓'
+  --color=bg+:#292e42,bg:#1a1b26,spinner:#7dcfff,hl:#7aa2f7
+  --color=fg:#c0caf5,header:#7aa2f7,info:#7aa2f7,pointer:#7dcfff
+  --color=marker:#9ece6a,fg+:#c0caf5,prompt:#7dcfff,hl+:#7aa2f7
+  --color=border:#27a1b9"
+
 # Shell integrations
 eval "$(fzf --zsh)"
-eval "$(zoxide init --cmd cd zsh)"
+eval "$(zoxide init zsh)"
+
+# Fuzzy-find a repo under ~/GIT and cd into it (Ctrl+G)
+function fzf-cd-git() {
+    local dir
+    dir=$(cd ~/GIT && fd --type d --max-depth 1 | fzf)
+    if [[ -n "$dir" ]]; then
+        builtin cd -- "${HOME}/GIT/${dir}"
+        local f
+        for f in $precmd_functions; do
+            $f
+        done
+    fi
+    zle reset-prompt
+}
+zle -N fzf-cd-git
+bindkey '^g' fzf-cd-git
