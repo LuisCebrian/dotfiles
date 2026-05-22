@@ -7,21 +7,28 @@ ZINIT_HOME="${HOME}/.local/share/zinit/zinit.git"
 
 # Download Zinit, if it's not there yet
 if [ ! -d "$ZINIT_HOME" ]; then
-    mkdir - p "$(dirname $ZINIT_HOME)"
-    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+    mkdir -p "$(dirname "$ZINIT_HOME")" && \
+    git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME" || \
+    { echo "Error: Failed to install zinit" >&2; return 1; }
 fi
 
 # Source/Load zinit
 source "${ZINIT_HOME}/zinit.zsh"
 
 # Add in zsh plugins
-zinit light zsh-users/zsh-syntax-highlighting
 zinit light zsh-users/zsh-completions
 zinit light zsh-users/zsh-autosuggestions
 zinit light Aloxaf/fzf-tab
+zinit light zsh-users/zsh-syntax-highlighting
 
 # Load completions
-autoload -U compinit && compinit
+autoload -Uz compinit
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
+zinit cdreplay -q
 
 # Configure prompt
 eval "$(oh-my-posh init zsh --config ~/GIT/dotfiles/zsh/tokyonight_storm.omp.json)"
@@ -34,11 +41,13 @@ bindkey '^f' autosuggest-accept
 # Fix backward key after entering insert mode after normal mode
 bindkey '^?' backward-delete-char
 
+#Open fuzzy find
+bindkey -s '^g' 'tv git-repos --layout portrait\n'
+
 # History
 HISTSIZE=5000
 HISTFILE=~/.zsh_history
 SAVEHIST=$HISTSIZE
-HISTDUP=erase
 setopt appendhistory
 setopt sharehistory
 setopt hist_ignore_space
@@ -49,7 +58,7 @@ setopt hist_ignore_dups
 # Yank to the system clipboard
 function vi-yank-system {
     zle vi-yank
-   echo "$CUTBUFFER" | pbcopy -i
+    printf '%s' "$CUTBUFFER" | pbcopy
 }
 
 zle -N vi-yank-system
@@ -68,42 +77,8 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 
 # Aliases
 alias ls='ls --color'
-
-# Load fzf installed with the install script
-# https://github.com/junegunn/fzf?tab=readme-ov-file#using-git
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# fzf — Tokyo Night theme + layout
-export FZF_DEFAULT_OPTS="
-  --layout=reverse
-  --border=rounded
-  --height=40%
-  --margin=1,15%
-  --info=inline-right
-  --prompt='❯ '
-  --pointer='▶'
-  --marker='✓'
-  --color=bg+:#292e42,bg:#1a1b26,spinner:#7dcfff,hl:#7aa2f7
-  --color=fg:#c0caf5,header:#7aa2f7,info:#7aa2f7,pointer:#7dcfff
-  --color=marker:#9ece6a,fg+:#c0caf5,prompt:#7dcfff,hl+:#7aa2f7
-  --color=border:#27a1b9"
+alias q='pi -p --model us.anthropic.claude-sonnet-4-6'
 
 # Shell integrations
 eval "$(fzf --zsh)"
 eval "$(zoxide init zsh)"
-
-# Fuzzy-find a repo under ~/GIT and cd into it (Ctrl+G)
-function fzf-cd-git() {
-    local dir
-    dir=$(cd ~/GIT && fd --type d --max-depth 1 | fzf)
-    if [[ -n "$dir" ]]; then
-        builtin cd -- "${HOME}/GIT/${dir}"
-        local f
-        for f in $precmd_functions; do
-            $f
-        done
-    fi
-    zle reset-prompt
-}
-zle -N fzf-cd-git
-bindkey '^g' fzf-cd-git
